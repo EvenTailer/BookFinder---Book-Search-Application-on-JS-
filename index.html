@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="./src/assets/pngwing.com (2).png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>js-books-app</title>
+</head>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  /* light theme */
+  :root {
+    --bg-body: #f5f7fb;
+    --bg-card: #ffffff;
+    --text-primary: #1e293b;
+    --text-secondary: #4b5563;
+    --border: #e2e8f0;
+    --btn: #007bff;
+    --btn-hover: #0056b3;
+    --fav: #ff4757;
+  }
+
+  /* dark theme */
+  body.dark {
+    --bg-body: #121826;
+    --bg-card: #1e293b;
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --border: #334155;
+    --btn: #3b82f6;
+    --btn-hover: #2563eb;
+    --fav: #e11d48;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    padding: 1rem;
+    transition: background 0.2s;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+
+  .logo {
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* btn in header and btn burgers */
+  .theme-toggle,
+  #aboutProjectBtn,
+  .burger-menu-btn,
+  .burger-btn {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--text-primary);
+    padding: 0.3rem;
+  }
+
+  .burger-menu-btn,
+  .burger-btn {
+    position: fixed;
+    top: 90px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--btn);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .burger-menu-btn {
+    left: 1rem;
+  }
+
+  .burger-btn {
+    right: 1rem;
+  }
+
+  /* Filter search */
+  #container-search,
+  .containerFilter {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 600px;
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+
+  #search,
+  .filter-input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 2rem;
+    background: var(--bg-card);
+    color: var(--text-primary);
+  }
+
+  #btn-search {
+    background: var(--btn);
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 2rem;
+    cursor: pointer;
+  }
+
+  #btn-search:hover {
+    background: var(--btn-hover);
+  }
+
+  /* grig carts  */
+  #app {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .book-card {
+    margin: 10px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+  }
+
+  .book-cover {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    background: #e2e8f0;
+  }
+
+  .no-cover {
+    aspect-ratio: 2/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e2e8f0;
+    color: #94a3b8;
+  }
+
+  .book-info {
+    padding: 0.8rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .book-title {
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .book-author,
+  .book-year {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .addNotes {
+    margin-top: 0.5rem;
+    background: var(--fav);
+    border: none;
+    padding: 0.4rem;
+    border-radius: 2rem;
+    color: white;
+    cursor: pointer;
+  }
+
+  .addNotes.remove {
+    background: #6c757d;
+  }
+
+  /* Loading... */
+  .loader-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #ccc;
+    border-top-color: var(--btn);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* side menu notes and ganre */
+  .drawer,
+  .genre-menu {
+    position: fixed;
+    top: 0;
+    width: 260px;
+    height: 100%;
+    background: var(--bg-card);
+    z-index: 1002;
+    transition: transform 0.2s;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .drawer {
+    right: 0;
+    transform: translateX(100%);
+  }
+
+  .drawer.open {
+    transform: translateX(0);
+  }
+
+  .genre-menu {
+    left: 0;
+    transform: translateX(-100%);
+  }
+
+  .genre-menu.open {
+    transform: translateX(0);
+  }
+
+  .drawer-header,
+  .menu-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .drawer-content {
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  .genre-btn {
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    background: var(--btn);
+    border: none;
+    border-radius: 2rem;
+    color: white;
+    cursor: pointer;
+  }
+
+  .genre-btn:hover {
+    background: var(--btn-hover);
+  }
+
+  /* Overlay */
+  .overlay,
+  .menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: none;
+  }
+
+  .overlay.active,
+  .menu-overlay.active {
+    display: block;
+  }
+
+  /* Modal window about this project */
+  .modal-about {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1100;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .modal-about.active {
+    display: flex;
+  }
+
+  .modal-about-content {
+    background: var(--bg-card);
+    max-width: 90%;
+    max-height: 85%;
+    overflow: auto;
+    padding: 1.5rem;
+    border-radius: 1rem;
+  }
+
+  .close-about-modal {
+    float: right;
+    font-size: 1.5rem;
+    cursor: pointer;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+  }
+
+  /* changes for mobile phones */
+  @media (max-width: 640px) {
+    #app {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    }
+
+    .book-cover,
+    .no-cover {
+      aspect-ratio: 2/3;
+    }
+
+    .drawer,
+    .genre-menu {
+      width: 85%;
+    }
+
+    .close-drawer,
+    .close-menu,
+    .close-about-modal {
+      font-size: 30px !important;
+      padding: 5px !important;
+      min-width: 40px !important;
+      min-height: 30px !important;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid red;
+      border-radius: 30%;
+    }
+
+    .drawer-header h3,
+    .menu-header h3 {
+      font-size: 1.4rem;
+    }
+
+    .genre-btn,
+    .icon-btn {
+      padding: 12px 16px;
+      font-size: 1rem;
+    }
+  }
+
+
+  @media (max-width: 710px) {
+    .header {
+      justify-content: space-between;
+      padding: 8px 12px;
+    }
+
+    .logo {
+      font-size: 1.1rem;
+      position: static;
+      transform: none;
+      margin: 0 auto;
+    }
+
+    .header-actions {
+      gap: 8px;
+    }
+
+    .burger-menu-btn,
+    .burger-btn,
+    .theme-toggle {
+      background: none;
+      box-shadow: none;
+      font-size: 1.3rem;
+      color: var(--text-primary);
+      width: auto;
+      height: auto;
+      position: static;
+    }
+
+    #burgerMenuBtn,
+    #burgerBtn {
+      position: static;
+    }
+
+    #app {
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .drawer-content .book-card {
+      padding: 8px !important;
+      margin-bottom: 12px !important;
+      gap: 8px !important;
+    }
+
+    .drawer-content .book-cover {
+      margin: auto;
+      width: 110px !important;
+      height: auto !important;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .drawer-content .book-title {
+      font-size: 0.9rem !important;
+      margin-bottom: 2px !important;
+    }
+
+    .drawer-content .book-author,
+    .drawer-content .book-year {
+      font-size: 0.7rem !important;
+    }
+
+    .remove-fav-btn {
+      font-size: 0.9rem !important;
+      padding: 8px 12px !important;
+      margin-top: 6px !important;
+      width: 100% !important;
+      background-color: var(--btn-fav) !important;
+      border-radius: 30px !important;
+      border: 1px solid red;
+      color: rgb(49, 141, 247);
+      cursor: pointer;
+    }
+
+
+    .drawer {
+      width: 45% !important;
+      max-width: 280px;
+      right: 0;
+
+    }
+
+    .genre-menu {
+      width: 75% !important;
+      max-width: 280px;
+      left: 0;
+    }
+
+
+  }
+</style>
+
+<body>
+  <header class="header">
+    <button id="burgerMenuBtn" class="burger-menu-btn">☰</button>
+    <div class="logo">📚 BookFinder</div>
+    <div class="header-actions">
+      <button id="themeToggle" class="theme-toggle">🌙</button>
+      <button id="burgerBtn" class="burger-btn">📝</button>
+    </div>
+  </header>
+
+  <div id="genreMenu" class="genre-menu">
+    <div class="menu-header">
+      <h3>📚 Genres</h3>
+      <button class="close-menu" id="closeMenuBtn">✕</button>
+    </div>
+    <div class="menu-buttons">
+      <button id="genreRomance" class="genre-btn">❤️ Romance</button>
+      <button id="genreFantasy" class="genre-btn">🐉 Fantasy</button>
+      <button id="genreScience" class="genre-btn">🔬 Science</button>
+      <button id="aboutProjectBtn" class="icon-btn" title="О проекте">О проекте ℹ️</button>
+    </div>
+  </div>
+  <div id="menuOverlay" class="menu-overlay"></div>
+
+
+  <div id="drawer" class="drawer">
+    <div class="drawer-header">
+      <h3>⭐ My Favorites</h3>
+      <button class="close-drawer" id="closeDrawerBtn">✕</button>
+    </div>
+    <div id="drawerContent" class="drawer-content">
+      <p>Loading...</p>
+    </div>
+  </div>
+
+  <div id="overlay" class="overlay"></div>
+  <div id="container-search">
+    <input placeholder="enter the title of the book or the author's name" id="search" type="text">
+    <button id="btn-search">Search</button>
+
+  </div>
+  <div class="containerFilter">
+    <input type="text" id="filterAuthor" placeholder="Filter by author name..." class="filter-input">
+  </div>
+
+  <div id="app"></div>
+
+  <footer class="footer">
+    <p>© 2025 BookFinder — Open Library API. All data provided by Open Library.</p>
+  </footer>
+  <script type="module" src="./src/js/main.js"></script>
+</body>
+
+</html>
