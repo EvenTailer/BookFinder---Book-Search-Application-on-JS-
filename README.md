@@ -84,27 +84,3 @@ renderNotes.js	Renders favorites list inside the right drawer.
 debounce.js	Debounce utility and auto‑search function.
 filterByAuthor.js	Client‑side filter by author name.
 aboutProject.js	Displays the "About Project" modal.
-🔑 Task (Assignment)
-This project was developed as part of a technical assignment. The full task description is available at:
-
-🔗 [Link to the task document] (please insert the actual URL provided by your instructor)
-
-🌟 Future Improvements
-Add pagination for search results and genre pages.
-
-Show author photos and detailed book descriptions (via Works API).
-
-Implement book rating or reviews (if API provides).
-
-Add a "Random book" feature.
-
-📄 License
-MIT
-
-🙏 Acknowledgements
-Open Library API for providing free book data.
-
-Icons and design inspired by modern book discovery apps.
-
-Made with ❤️ by Ilya Grammatik
-GitHub
